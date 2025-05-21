@@ -1,48 +1,51 @@
 const fs = require('fs');
-const fetch = require('node-fetch');
+const path = require('path');
 
-const baseURL = "https://raw.githubusercontent.com/all-solutions/Flash2MQTT/main/firmware";
-const firmwareListURL = `${baseURL}/firmware_list.json`;
+const firmwareDir = path.resolve(__dirname, 'firmware');
+const binFiles = fs.readdirSync(firmwareDir).filter(f => f.endsWith('.bin'));
 
-async function fetchJSON(url) {
-    const response = await fetch(url);
-    if (!response.ok) {
-        throw new Error(`Fehler beim Laden der URL: ${url}`);
-    }
-    return response.json();
+if (binFiles.length === 0) {
+  console.log('❌ No .bin files found in firmware folder.');
+  process.exit(1);
 }
 
-async function createReleaseJSON() {
-    const releaseData = { release: [] };
+const firmwareList = [];
 
-    try {
-        const firmwareList = await fetchJSON(firmwareListURL);
+for (const file of binFiles) {
+  const versionMatch = file.match(/_V?([\w.\-]+)\.bin$/);
+  const version = versionMatch ? versionMatch[1] : 'unknown';
+  const isPre = file.toLowerCase().includes('nightly') || file.toLowerCase().includes('beta');
 
-        for (const firmware of firmwareList) {
-            const { name, version } = firmware;
-            const variantsURL = `${baseURL}/${name}/variants.json`;
+  // 👇 Add entry to firmware.json
+  firmwareList.push({
+    version,
+    prerelease: isPre,
+    file
+  });
 
-            try {
-                const variants = await fetchJSON(variantsURL);
+  // 👇 Create ESP Web Tools Manifest (merged .bin format)
+  const manifest = {
+    name: file.replace(/\.bin$/, ''),
+    version,
+    builds: [
+      {
+        chipFamily: "ESP32",
+        parts: [
+          {
+            path: file,
+            offset: 0
+          }
+        ]
+      }
+    ]
+  };
 
-                for (const variant of variants) {
-                    const { displayName, file } = variant;
-                    releaseData.release.push({
-                        binary: `${name}${displayName}${version}`,
-                        otaurl: file
-                    });
-                }
-            } catch (error) {
-                console.error(`Fehler beim Laden der Variants für ${name}:`, error);
-            }
-        }
-
-        fs.writeFileSync('release.json', JSON.stringify(releaseData, null, 2));
-        console.log("release.json wurde erfolgreich erstellt!");
-
-    } catch (error) {
-        console.error(`Fehler beim Erstellen der release.json: ${error.message}`);
-    }
+  const manifestPath = path.join(firmwareDir, file.replace(/\.bin$/, '.json'));
+  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+  console.log(`✅ Created manifest: ${manifestPath}`);
 }
 
-createReleaseJSON();
+// 👇 Write firmware.json (for dropdown use in UI)
+const firmwareJsonPath = path.join(firmwareDir, 'firmware.json');
+fs.writeFileSync(firmwareJsonPath, JSON.stringify(firmwareList, null, 2));
+console.log(`✅ Created firmware list: ${firmwareJsonPath}`);
