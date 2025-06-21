@@ -1,0 +1,15 @@
+{
+  "name": "BLLEDController_V2.2.0.nightly.210625.1",
+  "version": "2.2.0.nightly.210625.1",
+  "builds": [
+    {
+      "chipFamily": "ESP32",
+      "parts": [
+        {
+          "path": "BLLEDController_V2.2.0.nightly.210625.1.bin",
+          "offset": 0
+        }
+      ]
+    }
+  ]
+}
