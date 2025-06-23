@@ -63,5 +63,10 @@
     "version": "2.2.0.nightly.210625.1",
     "prerelease": true,
     "file": "BLLEDController_V2.2.0.nightly.210625.1.bin"
+  },
+  {
+    "version": "2.2.0.nightly.230625.1",
+    "prerelease": true,
+    "file": "BLLEDController_V2.2.0.nightly.230625.1.bin"
   }
 ]
