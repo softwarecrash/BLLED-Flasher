@@ -2,8 +2,8 @@ const fs = require('fs');
 const path = require('path');
 
 // Konfiguration
-const KEEP_STABLE = 3;      // wie viele Releases behalten
-const KEEP_PRE = 3;         // wie viele Pre-Releases behalten
+const KEEP_STABLE = 5;      // wie viele Releases behalten
+const KEEP_PRE = 5;         // wie viele Pre-Releases behalten
 
 const firmwareDir = path.resolve(__dirname, 'firmware');
 const binFiles = fs.readdirSync(firmwareDir).filter(f => f.endsWith('.bin'));
