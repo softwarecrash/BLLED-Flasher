@@ -1,0 +1,15 @@
+{
+  "name": "BLLC_V2.2.3.nightly.140725.1",
+  "version": "2.2.3.nightly.140725.1",
+  "builds": [
+    {
+      "chipFamily": "ESP32",
+      "parts": [
+        {
+          "path": "BLLC_V2.2.3.nightly.140725.1.bin",
+          "offset": 0
+        }
+      ]
+    }
+  ]
+}
